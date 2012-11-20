@@ -43,6 +43,15 @@ console.log(v.olderThan(new Version('1.2.3'))) // -> false
 console.log(v.olderThan(new Version('1.3'))) // -> true
 ```
 
+So for example to run a piece of code in an Android browser version 2.4.1 or older, do this:
+```JavaScript
+$ready(function(profile) {
+  if (profile.isAndroid && profile.androidVersion.sameOrOlder(new Version('2.4.1'))) {
+    alert('Your Android version is too old and is not supported. Please update it if possible.');
+  }
+})
+```
+
 
 # License
 
