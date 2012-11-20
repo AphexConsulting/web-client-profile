@@ -1,9 +1,32 @@
+// Copyright (C) 2012 Aphex Consulting Oy
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this
+// software and associated documentation files (the "Software"), to deal in the Software
+// without restriction, including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+// to whom the Software is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+// FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
 /*
 TODO:
-  - support jQuery, like $.ready() oslt, but only if jQuery has been loaded already
+  - different browsers and browser versions
   - screen resolution, bpp, etc.
   - has physical keyboard? has mouse?
   - laptop/desktop? pad? phone?
+  - dpi: implement this: http://stackoverflow.com/questions/1713771/how-to-detect-page-zoom-level-in-all-modern-browsers
+    also: http://stackoverflow.com/questions/7702759/how-to-detect-page-zoom-level-in-ie-8
+  - booleans: xhdpi, hdpi, mdpi, ldpi (follow the Android spec)
+  - Also something similar to Android screen sizes (xlarge, large, normal, small)
+  - Add classes to the <html> tag, if requested, to allow using css to change how the page displays in different environments (this could be a plugin)
 */
 
 function $ready(priority, handler) {
@@ -17,6 +40,8 @@ function $ready(priority, handler) {
     $ready.handlers.push({priority:priority, handler:handler});
   }
 }
+
+if (!!$) $.webClientReady = $ready; 
 
 function Version(str) {
   this.arr = str.split('.');
@@ -62,23 +87,44 @@ Version.prototype.olderThan = function(other) {
 var ua = navigator.userAgent;
 var ualc = ua.toLowerCase();
 
-// Detect the clientProfile
+// Initialize the clientProfile
 $ready.handlers = []
 $ready.isReady = false;
-$ready.clientProfile = {
-  isPhoneGap: Object.prototype.hasOwnProperty.call(window, '_cordovaExec'),
-  isAndroid: ualc.match(/android/),
-  isIphone: ualc.match(/iphone/),
-  isIpad: ualc.match(/ipad/)
+$ready.clientProfile = {};
+
+// PhoneGap
+if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isPhoneGap = true;
+if ($ready.clientProfile.isPhoneGap) {
+  $ready.clientProfile.phoneGap = device;
 }
+
+// Android
+if (ualc.match(/android/)) $ready.clientProfile.isAndroid = true;
 if ($ready.clientProfile.isAndroid) {
   $ready.clientProfile.androidVersion = new Version(/Android ([^;]+)/.exec(ua)[1]);
 }
-$ready.clientProfile.isIOS = $ready.clientProfile.isIphone || $ready.clientProfile.isIpad;
-$ready.clientProfile.isMobile = $ready.clientProfile.isAndroid || $ready.clientProfile.isIOS; // TODO: Nokia, RIM, etc.
-$ready.screen = {
-  touch: $ready.isMobile,
+
+// iOS (iPhone, iPad, iPod)
+if (ualc.match(/iphone/)) $ready.clientProfile.isIphone = true;
+if (ualc.match(/ipad/)) $ready.clientProfile.isIpad = true;
+if (ualc.match(/ipod/)) $ready.clientProfile.isIpod = true; // not tested
+if ($ready.clientProfile.isIphone || $ready.clientProfile.isIpad || $ready.clientProfile.isIpod) $ready.clientProfile.isIOS = true;
+
+// Mobile features
+if ($ready.clientProfile.isAndroid || $ready.clientProfile.isIOS) $ready.clientProfile.isMobile = true; // TODO: Nokia, RIM, etc.
+else $ready.clientProfile.isUnknown = true;
+
+$ready.clientProfile.screen = {
+  width: screen.width,
+  height: screen.height,
+  aspectRatio: screen.width / screen.height,
+  dpi: parseInt(getComputedStyle(document.documentElement,null).width) / document.documentElement.clientWidth
 }
+$ready.clientProfile.input = {
+  // source for the following: http://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+  touch: !!('ontouchstart' in window) // works on most browsers 
+        || !!('onmsgesturechange' in window), // works on ie10
+};
 
 // Handle different ready-events correctly
 $ready.readyEvent = function(source) {
