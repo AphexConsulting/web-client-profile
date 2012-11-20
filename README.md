@@ -9,9 +9,11 @@ Detect web client features, like browser kind and version, operating system type
 1. Use a `<script type="text/javascript" src="js/web-client-profile.js"></script>` to your HTML
 1. Add a script that registers your handler function with $ready (or $.ready if you use jQuery). It will get called when the client device is ready and will be given the profile as a parameter so you can do your conditional functionality there. For example:
 
-    $ready(function(profile) {
-      alert(JSON.stringify(profile))
-    })
+```JavaScript
+$ready(function(profile) {
+  alert(JSON.stringify(profile))
+})
+```
 
 # License
 
