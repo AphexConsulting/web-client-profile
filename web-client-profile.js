@@ -44,16 +44,23 @@ function $ready(priority, handler) {
 if (!!$) $.webClientReady = $ready; 
 
 function Version(str) {
-  this.arr = str.split('.');
-  this.float = parseFloat(str);
   this.value = str;
+  
+  var arr = str.split('.');
+  for(var i = 0; i < arr.length; i++) arr[i] = parseInt(arr[i]);
+  this.getArray = function() { return arr; }
+  
+  var fl = parseFloat(str);
+  this.getFloat = function() { return fl; }
+  
   // Python has sys.hexversion that is 0x02040300 for Python 2.4.3, let's imitate that.
   // It makes checks like v1.hex > v2.hex possible.
   // TODO: make new Version(0x02040300) work
-  this.hex = (this.arr.length>0?this.arr[0]:0) * 0x01000000 +
-             (this.arr.length>1?this.arr[1]:0) * 0x010000 +
-             (this.arr.length>2?this.arr[2]:0) * 0x0100 +
-             (this.arr.length>3?this.arr[3]:0);
+  var hex = (arr.length>0?arr[0]:0) * 0x01000000 +
+             (arr.length>1?arr[1]:0) * 0x010000 +
+             (arr.length>2?arr[2]:0) * 0x0100 +
+             (arr.length>3?arr[3]:0);
+  this.getHex = function() { return hex; }
 }
 function compareVersions(_v1, _v2) {
   var v1 = _v1.split('.');
@@ -96,19 +103,35 @@ $ready.clientProfile = {};
 if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isPhoneGap = true;
 if ($ready.clientProfile.isPhoneGap) {
   $ready.clientProfile.phoneGap = device;
+  $ready.clientProfile.platform = device.platform;
 }
 
 // Android
-if (ualc.match(/android/)) $ready.clientProfile.isAndroid = true;
-if ($ready.clientProfile.isAndroid) {
-  $ready.clientProfile.androidVersion = new Version(/Android ([^;]+)/.exec(ua)[1]);
+if ($ready.clientProfile.isPhoneGap) {
+  if (device.platform == 'Android') {
+    $ready.clientProfile.isAndroid = true; 
+    $ready.clientProfile.androidVersion = new Version(device.version);
+  }
+} else {
+  if (ualc.match(/android/)) {
+    $ready.clientProfile.isAndroid = true; 
+    $ready.clientProfile.androidVersion = new Version(/Android ([^;]+)/.exec(ua)[1]);
+  }
 }
 
 // iOS (iPhone, iPad, iPod)
 if (ualc.match(/iphone/)) $ready.clientProfile.isIphone = true;
 if (ualc.match(/ipad/)) $ready.clientProfile.isIpad = true;
 if (ualc.match(/ipod/)) $ready.clientProfile.isIpod = true; // not tested
-if ($ready.clientProfile.isIphone || $ready.clientProfile.isIpad || $ready.clientProfile.isIpod) $ready.clientProfile.isIOS = true;
+
+if ($ready.clientProfile.isPhoneGap) {
+  if (device.platform == 'iPhone') {
+    $ready.clientProfile.isIOS = true;
+    $ready.clientProfile.iOSVersion = new Version(device.version);
+  }
+} else {
+  if ($ready.clientProfile.isIphone || $ready.clientProfile.isIpad || $ready.clientProfile.isIpod) $ready.clientProfile.isIOS = true;  
+}
 
 // Mobile features
 if ($ready.clientProfile.isAndroid || $ready.clientProfile.isIOS) $ready.clientProfile.isMobile = true; // TODO: Nokia, RIM, etc.
