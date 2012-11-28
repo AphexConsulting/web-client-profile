@@ -127,12 +127,12 @@ var ua = navigator.userAgent;
 var ualc = ua.toLowerCase();
 
 $ready.clientProfile = {};
+if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isCordova = true;
 
 // Initialize the clientProfile
 $ready(Infinity, function() {
 
   // Cordova
-  if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isCordova = true;
   if ($ready.clientProfile.isCordova && window.device) {
     $ready.clientProfile.cordova = window.device;
     $ready.clientProfile.platform = window.device.platform;
