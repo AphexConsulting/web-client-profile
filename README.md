@@ -52,6 +52,40 @@ $ready(function(profile) {
 })
 ```
 
+## Ready handlers
+
+The ready handlers are called (in priority order) when the environment is ready for action.
+
+When registering a handler, it is possible to give the handler a priority number, and the handlers will be
+called in priority order. The smaller the priority, the earlier the handler will be called.
+
+A handler can also be asynchronous. This will be detected by the library from the amount of arguments the function
+takes. To make an asynchronous handler, you should make your handler take two arguments, first the `clientProfile` and
+then the `next` handler, which you should call when your asynchronous handler is done. '''Note!''' If you forget to call
+the `next` handler, none of the following handlers will ever be called, so be careful and make sure it is called even in
+error conditions.
+
+If you want to make an environment specific ready-handler that makes sure that your code will be run only after a specific
+asynchronous thing has happened, you should give it a priority of `-Infinity` and make it asynchronous. This way all the
+code on your web page will start running only after your handler has called it's `next` argument.
+
+Here's an example with three handlers that will be called in order, one of which is an asynchronous handler:
+```JavaScript
+$ready(function(profile) {
+  console.log('handler 1');
+});
+$ready(function(profile, next) {
+  $('#data').text(JSON.stringify(profile))
+  console.log('profile', profile)
+  setTimeout(function() {
+    console.log('Calling next now...');
+    next();
+  }, 1000);
+})
+$ready(function(profile) {
+  console.log('handler 2');
+});
+```
 
 # License
 
