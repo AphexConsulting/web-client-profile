@@ -46,7 +46,7 @@ $ready.isReady = false;
 
 // Handle different ready-events correctly
 $ready.readyEvent = function(source) {
-  if ($ready.clientProfile.isPhoneGap && source === 'device') $ready.ready();
+  if ($ready.clientProfile.isCordova && source === 'device') $ready.ready();
   else if (!$ready.isReady) $ready.ready();
 }
 
@@ -128,15 +128,15 @@ $ready.clientProfile = {};
 // Initialize the clientProfile
 $ready(Infinity, function() {
 
-  // PhoneGap
-  if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isPhoneGap = true;
-  if ($ready.clientProfile.isPhoneGap && window.device) {
-    $ready.clientProfile.phoneGap = window.device;
+  // Cordova
+  if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isCordova = true;
+  if ($ready.clientProfile.isCordova && window.device) {
+    $ready.clientProfile.cordova = window.device;
     $ready.clientProfile.platform = window.device.platform;
   }
 
   // Android
-  if ($ready.clientProfile.isPhoneGap && window.device) {
+  if ($ready.clientProfile.isCordova && window.device) {
     if (device.platform == 'Android') {
       $ready.clientProfile.isAndroid = true; 
       $ready.clientProfile.androidVersion = new Version(device.version);
@@ -153,8 +153,8 @@ $ready(Infinity, function() {
   if (ualc.match(/ipad/)) $ready.clientProfile.isIpad = true;
   if (ualc.match(/ipod/)) $ready.clientProfile.isIpod = true; // not tested
 
-  if ($ready.clientProfile.isPhoneGap) {
-    if (device.platform == 'iPhone') {
+  if ($ready.clientProfile.isCordova) {
+    if (device.platform == 'iPhone' && window.device) {
       $ready.clientProfile.isIOS = true;
       $ready.clientProfile.iOSVersion = new Version(device.version);
     }
