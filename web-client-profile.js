@@ -130,13 +130,13 @@ $ready(Infinity, function() {
 
   // PhoneGap
   if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isPhoneGap = true;
-  if ($ready.clientProfile.isPhoneGap) {
-    $ready.clientProfile.phoneGap = device;
-    $ready.clientProfile.platform = device.platform;
+  if ($ready.clientProfile.isPhoneGap && window.device) {
+    $ready.clientProfile.phoneGap = window.device;
+    $ready.clientProfile.platform = window.device.platform;
   }
 
   // Android
-  if ($ready.clientProfile.isPhoneGap) {
+  if ($ready.clientProfile.isPhoneGap && window.device) {
     if (device.platform == 'Android') {
       $ready.clientProfile.isAndroid = true; 
       $ready.clientProfile.androidVersion = new Version(device.version);
