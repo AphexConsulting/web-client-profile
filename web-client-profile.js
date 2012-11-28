@@ -41,6 +41,9 @@ function $ready(priority, handler) {
   }
 }
 
+$ready.handlers = []
+$ready.isReady = false;
+
 // Handle different ready-events correctly
 $ready.readyEvent = function(source) {
   if ($ready.clientProfile.isPhoneGap && source === 'device') $ready.ready();
@@ -120,58 +123,59 @@ Version.prototype.olderThan = function(other) {
 var ua = navigator.userAgent;
 var ualc = ua.toLowerCase();
 
-// Initialize the clientProfile
-$ready.handlers = []
-$ready.isReady = false;
 $ready.clientProfile = {};
 
-// PhoneGap
-if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isPhoneGap = true;
-if ($ready.clientProfile.isPhoneGap) {
-  $ready.clientProfile.phoneGap = device;
-  $ready.clientProfile.platform = device.platform;
-}
+// Initialize the clientProfile
+$ready(Infinity, function() {
 
-// Android
-if ($ready.clientProfile.isPhoneGap) {
-  if (device.platform == 'Android') {
-    $ready.clientProfile.isAndroid = true; 
-    $ready.clientProfile.androidVersion = new Version(device.version);
+  // PhoneGap
+  if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isPhoneGap = true;
+  if ($ready.clientProfile.isPhoneGap) {
+    $ready.clientProfile.phoneGap = device;
+    $ready.clientProfile.platform = device.platform;
   }
-} else {
-  if (ualc.match(/android/)) {
-    $ready.clientProfile.isAndroid = true; 
-    $ready.clientProfile.androidVersion = new Version(/Android ([^;]+)/.exec(ua)[1]);
+
+  // Android
+  if ($ready.clientProfile.isPhoneGap) {
+    if (device.platform == 'Android') {
+      $ready.clientProfile.isAndroid = true; 
+      $ready.clientProfile.androidVersion = new Version(device.version);
+    }
+  } else {
+    if (ualc.match(/android/)) {
+      $ready.clientProfile.isAndroid = true; 
+      $ready.clientProfile.androidVersion = new Version(/Android ([^;]+)/.exec(ua)[1]);
+    }
   }
-}
 
-// iOS (iPhone, iPad, iPod)
-if (ualc.match(/iphone/)) $ready.clientProfile.isIphone = true;
-if (ualc.match(/ipad/)) $ready.clientProfile.isIpad = true;
-if (ualc.match(/ipod/)) $ready.clientProfile.isIpod = true; // not tested
+  // iOS (iPhone, iPad, iPod)
+  if (ualc.match(/iphone/)) $ready.clientProfile.isIphone = true;
+  if (ualc.match(/ipad/)) $ready.clientProfile.isIpad = true;
+  if (ualc.match(/ipod/)) $ready.clientProfile.isIpod = true; // not tested
 
-if ($ready.clientProfile.isPhoneGap) {
-  if (device.platform == 'iPhone') {
-    $ready.clientProfile.isIOS = true;
-    $ready.clientProfile.iOSVersion = new Version(device.version);
+  if ($ready.clientProfile.isPhoneGap) {
+    if (device.platform == 'iPhone') {
+      $ready.clientProfile.isIOS = true;
+      $ready.clientProfile.iOSVersion = new Version(device.version);
+    }
+  } else {
+    if ($ready.clientProfile.isIphone || $ready.clientProfile.isIpad || $ready.clientProfile.isIpod) $ready.clientProfile.isIOS = true;  
   }
-} else {
-  if ($ready.clientProfile.isIphone || $ready.clientProfile.isIpad || $ready.clientProfile.isIpod) $ready.clientProfile.isIOS = true;  
-}
 
-// Mobile features
-if ($ready.clientProfile.isAndroid || $ready.clientProfile.isIOS) $ready.clientProfile.isMobile = true; // TODO: Nokia, RIM, etc.
-else $ready.clientProfile.isUnknown = true;
+  // Mobile features
+  if ($ready.clientProfile.isAndroid || $ready.clientProfile.isIOS) $ready.clientProfile.isMobile = true; // TODO: Nokia, RIM, etc.
+  else $ready.clientProfile.isUnknown = true;
 
-$ready.clientProfile.screen = {
-  width: screen.width,
-  height: screen.height,
-  aspectRatio: screen.width / screen.height,
-  dpi: parseInt(getComputedStyle(document.documentElement,null).width) / document.documentElement.clientWidth
-}
-$ready.clientProfile.input = {
-  // source for the following: http://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
-  touch: !!('ontouchstart' in window) // works on most browsers 
-        || !!('onmsgesturechange' in window), // works on ie10
-};
+  $ready.clientProfile.screen = {
+    width: screen.width,
+    height: screen.height,
+    aspectRatio: screen.width / screen.height,
+    dpi: parseInt(getComputedStyle(document.documentElement,null).width) / document.documentElement.clientWidth
+  }
+  $ready.clientProfile.input = {
+    // source for the following: http://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript
+    touch: !!('ontouchstart' in window) // works on most browsers 
+          || !!('onmsgesturechange' in window), // works on ie10
+  };
+});
 
