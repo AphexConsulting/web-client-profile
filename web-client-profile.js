@@ -153,8 +153,8 @@ $ready(Infinity, function() {
   if (ualc.match(/ipad/)) $ready.clientProfile.isIpad = true;
   if (ualc.match(/ipod/)) $ready.clientProfile.isIpod = true; // not tested
 
-  if ($ready.clientProfile.isCordova) {
-    if (device.platform == 'iPhone' && window.device) {
+  if ($ready.clientProfile.isCordova && window.device) {
+    if (device.platform == 'iPhone') {
       $ready.clientProfile.isIOS = true;
       $ready.clientProfile.iOSVersion = new Version(device.version);
     }
