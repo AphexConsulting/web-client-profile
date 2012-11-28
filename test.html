@@ -1,12 +1,22 @@
 <html>
 <head>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript" src="http://brian.io/lawnchair/downloads/lawnchair-0.6.1.min.js"></script>
   <script type="text/javascript" src="web-client-profile.js"></script>
 </head>
 
 <body>
   <div id="data"/>
 <script >
+var store;
+$ready(Infinity, function(profile, next) {
+  console.log('Initializing Lawnchair')
+  store = new Lawnchair({name:'testing'}, function(store) {
+    console.log('Lawnchair initialized, continuing...');
+    next();
+  });
+});
+
 $.webClientReady(function(profile) {
   console.log('handler 1');
 });

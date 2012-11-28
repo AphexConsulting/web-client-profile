@@ -66,7 +66,7 @@ the `next` handler, none of the following handlers will ever be called, so be ca
 error conditions.
 
 If you want to make an environment specific ready-handler that makes sure that your code will be run only after a specific
-asynchronous thing has happened, you should give it a priority of `-Infinity` and make it asynchronous. This way all the
+asynchronous thing has happened, you should give it a priority of `Infinity` and make it asynchronous. This way all the
 code on your web page will start running only after your handler has called it's `next` argument.
 
 Here's an example with three handlers that will be called in order, one of which is an asynchronous handler:
@@ -90,8 +90,8 @@ $ready(function(profile) {
 Here is an example that waits for [lawnchair](http://brian.io/lawnchair/)'s database to become ready before running the rest of the app code:
 ```JavaScript
 var store;
-$ready(-Infinity, function(profile, next) {
-  store = new lawnchair({name:'testing'}, function(store) {
+$ready(Infinity, function(profile, next) {
+  store = new Lawnchair({name:'testing'}, function(store) {
     next();
   });
 });
