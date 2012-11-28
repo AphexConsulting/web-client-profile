@@ -87,6 +87,16 @@ $ready(function(profile) {
 });
 ```
 
+Here is an example that waits for [lawnchair](http://brian.io/lawnchair/)'s database to become ready before running the rest of the app code:
+```JavaScript
+var store;
+$ready(-Infinity, function(profile, next) {
+  store = new lawnchair({name:'testing'}, function(store) {
+    next();
+  });
+});
+```
+
 # License
 
 The library is licensed under the MIT-license:
