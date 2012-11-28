@@ -36,7 +36,6 @@ function $ready(priority, handler) {
   }
   $ready.handlers.push({priority:priority, handler:handler});
   if ($ready.isReady) {
-    handler($ready.clientProfile);
     $ready.ready();
   }
 }
@@ -52,10 +51,15 @@ $ready.readyEvent = function(source) {
 
 // Call all handlers and mark the device as ready. This function can (and will) be run multiple times.
 $ready.ready = function() {
+  $ready.isReady = false;
+  
   $ready.handlers.sort(function(a,b) { return b.priority - a.priority; });
   while ($ready.handlers.length > 0) {
     var handler = $ready.handlers.shift();
+    if ($ready.handlers.length == 0) $ready.isReady = true;
+    
     if (handler.handler.length > 1) {
+      $ready.isReady = false;
       handler.handler($ready.clientProfile, function() {
         $ready.ready();
       });
@@ -64,7 +68,6 @@ $ready.ready = function() {
       handler.handler($ready.clientProfile);      
     }
   }
-  if ($ready.handlers.length == 0) $ready.isReady = true;
 }
 
 document.addEventListener("deviceready", function() { $ready.readyEvent('device'); }, false);

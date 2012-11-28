@@ -27,6 +27,9 @@ $.webClientReady(function(profile, next) {
     console.log('Calling next now...');
     next();
   }, 1000);
+  $ready(function() {
+    console.log('handler 3');
+  })
 })
 $.webClientReady(function(profile) {
   console.log('handler 2');
