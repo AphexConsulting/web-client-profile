@@ -45,7 +45,9 @@ $ready.isReady = false;
 
 // Handle different ready-events correctly
 $ready.readyEvent = function(source) {
-  if ($ready.clientProfile.isCordova && source === 'device') $ready.ready();
+  if ($ready.clientProfile.isCordova) {
+    if(source === 'device') $ready.ready();
+  }
   else if (!$ready.isReady) $ready.ready();
 }
 
