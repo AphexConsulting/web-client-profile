@@ -34,12 +34,38 @@ function $ready(priority, handler) {
     handler = priority;
     priority = 0;
   }
+  $ready.handlers.push({priority:priority, handler:handler});
   if ($ready.isReady) {
     handler($ready.clientProfile);
-  } else {
-    $ready.handlers.push({priority:priority, handler:handler});
+    $ready.ready();
   }
 }
+
+// Handle different ready-events correctly
+$ready.readyEvent = function(source) {
+  if ($ready.clientProfile.isPhoneGap && source === 'device') $ready.ready();
+  else if (!$ready.isReady) $ready.ready();
+}
+
+// Call all handlers and mark the device as ready. This function can (and will) be run multiple times.
+$ready.ready = function() {
+  $ready.handlers.sort(function(a,b) { return b.priority - a.priority; });
+  while ($ready.handlers.length > 0) {
+    var handler = $ready.handlers.shift();
+    if (handler.handler.length > 1) {
+      handler.handler($ready.clientProfile, function() {
+        $ready.ready();
+      });
+      break;
+    } else {
+      handler.handler($ready.clientProfile);      
+    }
+  }
+  if ($ready.handlers.length == 0) $ready.isReady = true;
+}
+
+document.addEventListener("deviceready", function() { $ready.readyEvent('device'); }, false);
+document.addEventListener("DOMContentLoaded", function() { $ready.readyEvent('dom'); }, false);
 
 if (!!$) $.webClientReady = $ready; 
 
@@ -149,20 +175,3 @@ $ready.clientProfile.input = {
         || !!('onmsgesturechange' in window), // works on ie10
 };
 
-// Handle different ready-events correctly
-$ready.readyEvent = function(source) {
-  
-  if ($ready.clientProfile.isPhoneGap && source === 'device') $ready.ready();
-  else if (!$ready.isReady) $ready.ready();
-}
-
-// Call all handlers and mark the device as ready
-$ready.ready = function() {
-  $ready.handlers.sort(function(a,b) { return b.priority - a.priority; });
-  for(var i = 0; i < $ready.handlers.length; i++) $ready.handlers[i].handler($ready.clientProfile);
-  $ready.handlers = [];
-  $ready.isReady = true;
-}
-
-document.addEventListener("deviceready", function() { $ready.readyEvent('device'); }, false);
-document.addEventListener("DOMContentLoaded", function() { $ready.readyEvent('dom'); }, false);

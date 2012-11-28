@@ -8,9 +8,19 @@
   <div id="data"/>
 <script >
 $.webClientReady(function(profile) {
+  console.log('handler 1');
+});
+$.webClientReady(function(profile, next) {
   $('#data').text(JSON.stringify(profile))
   console.log('profile', profile)
+  setTimeout(function() {
+    console.log('Calling next now...');
+    next();
+  }, 1000);
 })
+$.webClientReady(function(profile) {
+  console.log('handler 2');
+});
 </script>
 </body>
 </html>
