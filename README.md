@@ -97,6 +97,15 @@ $ready(Infinity, function(profile, next) {
 });
 ```
 
+## PhoneGap / Cordova
+
+The library supports Cordova. Currently there is functionality for:
+* Android
+* iOS
+
+To get the PhoneGap specific information available, you need to use the `Device` PhoneGap module. More information on the
+[Cordova](http://docs.phonegap.com/en/2.2.0/cordova_device_device.md.html#Device) website.
+
 # License
 
 The library is licensed under the MIT-license:
