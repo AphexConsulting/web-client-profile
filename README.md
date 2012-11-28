@@ -61,7 +61,7 @@ called in priority order. The smaller the priority, the earlier the handler will
 
 A handler can also be asynchronous. This will be detected by the library from the amount of arguments the function
 takes. To make an asynchronous handler, you should make your handler take two arguments, first the `clientProfile` and
-then the `next` handler, which you should call when your asynchronous handler is done. '''Note!''' If you forget to call
+then the `next` handler, which you should call when your asynchronous handler is done. **Note!** If you forget to call
 the `next` handler, none of the following handlers will ever be called, so be careful and make sure it is called even in
 error conditions.
 
