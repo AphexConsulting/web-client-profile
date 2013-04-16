@@ -53,23 +53,30 @@ $ready.readyEvent = function(source) {
 
 // Call all handlers and mark the device as ready. This function can (and will) be run multiple times.
 $ready.ready = function() {
-  $ready.isReady = false;
-  
-  $ready.handlers.sort(function(a,b) { return b.priority - a.priority; });
-  while ($ready.handlers.length > 0) {
-    var handler = $ready.handlers.shift();
-    if ($ready.handlers.length == 0) $ready.isReady = true;
+  setTimeout(function() {
+    $ready.isReady = false;
+
+    $ready.handlers.sort(function(a,b) { return b.priority - a.priority; });
     
-    if (handler.handler.length > 1) {
-      $ready.isReady = false;
-      handler.handler($ready.clientProfile, function() {
-        $ready.ready();
-      });
-      break;
-    } else {
-      handler.handler($ready.clientProfile);      
+    function callOne() {
+      var handler = $ready.handlers.shift();
+      if ($ready.handlers.length == 0) $ready.isReady = true;
+      if (!handler) return;
+
+      if (handler.handler.length > 1) {
+        $ready.isReady = false;
+        handler.handler($ready.clientProfile, function() {
+          callOne();
+        });
+      } else {
+        setTimeout(function() {
+          handler.handler($ready.clientProfile);
+          callOne();
+        }, 0);
+      }
     }
-  }
+    callOne();
+  }, 0);
 }
 
 document.addEventListener("deviceready", function() { $ready.readyEvent('device'); }, false);
@@ -129,7 +136,7 @@ var ua = navigator.userAgent;
 var ualc = ua.toLowerCase();
 
 $ready.clientProfile = {};
-if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec') || Object.prototype.hasOwnProperty.call(window, '_cordovaNative')) $ready.clientProfile.isCordova = true;
+if (Object.prototype.hasOwnProperty.call(window, '_cordovaExec')) $ready.clientProfile.isCordova = true;
 
 // Initialize the clientProfile
 $ready(Infinity, function() {
@@ -166,6 +173,16 @@ $ready(Infinity, function() {
   } else {
     if ($ready.clientProfile.isIphone || $ready.clientProfile.isIpad || $ready.clientProfile.isIpod) $ready.clientProfile.isIOS = true;  
   }
+  
+  // IE / Windows Phone
+  if (ualc.match(/MSIE/)) {
+    $ready.clientProfile.isIE = true;
+    $ready.clientProfile.IEVersion = new Version(/MSIE ([^;]+)/.exec(ua)[1]);
+  }
+  if (ualc.match(/Windows Phone/)) {
+    $ready.clientProfile.isWindowsPhone = true;
+    $ready.clientProfile.WPVersion = new Version(/Windows Phone ([^;]+)/.exec(ua)[1]);
+  }
 
   // Mobile features
   if ($ready.clientProfile.isAndroid || $ready.clientProfile.isIOS) $ready.clientProfile.isMobile = true; // TODO: Nokia, RIM, etc.
@@ -183,4 +200,3 @@ $ready(Infinity, function() {
           || !!('onmsgesturechange' in window), // works on ie10
   };
 });
-
